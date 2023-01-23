@@ -1,0 +1,22 @@
+.img-box{
+    width: 200px;
+    height: 200px;
+    .rounded-circle{
+        border: black solid 1px;
+    }
+}
+.edit-img{
+    margin-top: -20px;
+}
+.name-container{
+    border-bottom: solid black 1px;
+}
+
+@media screen and (max-width: 820px) {
+    .img-box{
+        margin-top: 16px;
+    }
+    .name-container{
+        font-size: 12px;
+    }
+}

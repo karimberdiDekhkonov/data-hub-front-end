@@ -1,0 +1,51 @@
+.avatar{
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    border: solid black 1px;
+}
+.in-hour{
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.confirm-hour{
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+@media screen and (min-width: 820px) {
+    .prof-footer{
+        width: 90%;
+        margin: auto;
+    }
+    .pagnition{
+        margin: 40px auto;
+    }
+}
+.table{
+    width: 100%;
+    overflow-x: scroll;
+}
+.months{
+    width: 100%;
+}
+.premium{
+    margin-left: 5%;
+    width: 90%;
+    height: 60px;
+}
+ul{
+    li{
+        .Button{
+            opacity: 45%;
+        }
+    }
+}
+.bg{
+    background-color: #F0F8FF;
+    background: linear-gradient(90deg, #F0F8FF 35%, #89CFF0 100%);
+}
+.prof-footer{
+    position: sticky;
+    bottom: 0;
+}

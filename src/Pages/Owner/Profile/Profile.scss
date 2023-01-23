@@ -1,0 +1,45 @@
+.my-row{
+    display: grid;
+    gap: 56px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+
+
+    .my-col{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 200px;
+    }
+}
+.com-name{
+    display: flex;
+    gap: 22px;
+    font-weight: 500;
+    font-size: 20px;
+    margin-bottom: 24px;
+}
+@media screen and (max-width: 820px) {
+    .my-row{
+        margin-top: 16px;
+        display: grid;
+        gap: 56px;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+    
+    
+        .my-col{
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 150px;
+        }
+
+        
+    }
+    .com-name{
+        margin: 4px;
+    }
+    
+}
