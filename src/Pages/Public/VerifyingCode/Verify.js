@@ -57,7 +57,7 @@ function Verify(){
       }).then((resp=>{
           console.log(resp);
         if(resp.success){
-          alert(`Code is sent to ${email}`)
+          alert(`Code is sent to ${email} \nDo not forget to check your blocked emails list`)
        }
        })).catch((err)=>{
          alert('Sign up failed due to ' + err.message);
