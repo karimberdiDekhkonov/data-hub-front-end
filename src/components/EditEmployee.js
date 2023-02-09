@@ -2,26 +2,47 @@ import React, { useState } from 'react';
 import { Container } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import ResetSalary from './ResetSalary';
+import PenaltyVsTip from './PenaltyVsTip'
+import { useNavigate } from 'react-router-dom';
+import EmployeeSchedule from '../Pages/Owner/CreatedTable/EmployeeSchedule'
 
 function MyModal() {
-  const [show, setShow] = useState(false);
+  const [joinedCompany, setJoinedCompany] = useState(null);
+  let navigate = useNavigate();
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [imgSource, setImgSource] = useState(null);
+  const [initial, setInitial] = useState(null);
+  const [name, setName] = useState(".");
+  const [email, setEmail] = useState(".");
+  const [salary, setSalary] = useState(null);
+  const [started, setStarted] = useState(true);
 
+  const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const employee = "Jack";
-  const forEdit = [
-    {
-      hourly:20,
-      monday:"10.00-18.00",
-      tuesday:"10.00-18.00",
-      wednesday:"10.00-18.00",
-      thursday:"10.00-18.00",
-      friday:"10.00-18.00",
-      saturday:"Day off",
-      sunday:"Day off",
-    }
-  ]
 
+  const validition = async() =>{
+    if(started){
+      setStarted(false);
+      fetch(`http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth/getEmployee?email=${localStorage.getItem("employeeEmail")}`,{
+        method:"GET",
+        headers: {"Authorization": `Bearer ${token}`}
+      }).then((res)=>{
+        return res.json();
+      }).then((resp)=>{
+        setImgSource(resp.avatar!==null?null:resp.avatar);
+        setName(resp.firstname);
+        setEmail(resp.email);
+        setInitial(resp.initialLetter);
+        setJoinedCompany(resp.joinedCompanyId==null?null:resp.joinedCompanyId.name);
+        setSalary(resp.salary);
+      }).catch((e)=>{
+        navigate("/owner/tableArea")
+      });
+    }
+  }
+  validition();
   return (
     <>
         <Button onClick={handleShow} variant="link" className="ms-2">
@@ -32,70 +53,53 @@ function MyModal() {
         </Button>
       <Modal className='max-width-modal' show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit {employee}</Modal.Title>
+          <Modal.Title>Edit employee</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-        <div className='d-flex flex-column gap-2'>
-              <div className='d-flex gap-5'>
-                <div className="card-name text-info">
-                  <p className='m-bot fs-small bg-white'>Tip</p>
-                  <input className='form-control' type="number" placeholder='20 $' />
-                </div>
-                <div className="card-name text-info">
-                  <p className='m-bot fs-small bg-white'>Reason</p>
-                  <input className='form-control' type="text" placeholder='You worked well !' />
+        <Modal.Body> 
+          <div className='d-flex flex-column gap-2'>
+            <Container>
+              <div>
+                <div className="d-flex gap-3 justify-content-center">
+                  {
+                    imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+                  }
                 </div>
               </div>
-              <div className='d-flex gap-5'>
-                <div className="card-name text-info">
-                  <p className='m-bot fs-small bg-white'>Penalty</p>
-                  <input className='form-control' type="number" placeholder='20 $' />
+              <main className='mt-3 container d-flex flex-column gap-5'>
+                <div className='name-container d-flex gap-3'>
+                  <p>Firstname :</p>
+                  <p>{name}</p>
                 </div>
-                <div className="card-name text-info">
-                  <p className='m-bot fs-small bg-white'>Reason</p>
-                  <input className='form-control' type="text" placeholder='Latenesses !' />
+                <div className='name-container d-flex gap-3'>
+                  <p>Email :</p>
+                  <p>{email}</p>
                 </div>
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Hourly</p>
-                <input className='form-control' type="number" placeholder={forEdit[0].hourly} />
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Monday</p>
-                <input className='form-control' type="text" placeholder={forEdit[0].monday} />
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Tuesday</p>
-                <input className='form-control' type="text" placeholder={forEdit[0].tuesday} />
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Wednesday</p>
-                <input className='form-control' type="text" placeholder={forEdit[0].wednesday} />
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Thursday</p>
-                <input className='form-control' type="text" placeholder={forEdit[0].thursday} />
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Friday</p>
-                <input className='form-control' type="text" placeholder={forEdit[0].friday} />
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Saturday</p>
-                <input className='form-control' type="text" placeholder={forEdit[0].saturday} />
-              </div>
-              <div className="card-name text-info">
-                <p className='m-bot fs-small bg-white'>Sunday</p>
-                <input className='form-control' type="text" placeholder={forEdit[0].sunday} />
-              </div>
-            </div>
+                <div className='name-container d-flex gap-3'>
+                  <p>Joined company :</p>
+                  {
+                    joinedCompany===null?<p>You don't have company yet</p>:<p>{joinedCompany}</p>
+                  }  
+                </div>
+                <div className='name-container d-flex gap-3'>
+                  <p>Hourly salary :</p>
+                  {
+                    joinedCompany===null?<p>You don't have company yet</p>:<p>{salary}</p>
+                  }  
+                  <div>
+                  <ResetSalary/>
+                  </div>
+                </div>
+             </main>
+            </Container>
+            <EmployeeSchedule/>
+          </div>
         </Modal.Body>
         <Modal.Footer>
+          <div>
+            <PenaltyVsTip email={email}/>
+          </div>
           <Button variant="secondary" onClick={handleClose}>
             Close
-          </Button>
-          <Button variant="primary" onClick={handleClose}>
-            Save changes
           </Button>
         </Modal.Footer>
       </Modal>

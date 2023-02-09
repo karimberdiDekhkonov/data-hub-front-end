@@ -2,12 +2,70 @@ import React, { useState } from 'react';
 import { Container } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { useNavigate } from 'react-router-dom';
 
 function MyModal() {
+  const navigate = useNavigate();
+  const[name, setName] = useState(null);
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [started, setStarted] = useState(true);
+  const [tables, setTables] = useState(null);
+
+  const validation = async() =>{
+    if (started) {
+        setStarted(false);
+        fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/table/getAll",{
+            method:"GET",
+            headers: {"Authorization": `Bearer ${token}`}
+          }).then((res)=>{
+            return res.json();
+          }).then((resp)=>{
+            setTables(resp);
+            navigate("/owner/company")
+          }).catch((e)=>{
+            navigate("/login")
+          })   
+    }
+  }
+  validation();
+
+  const validate = () =>{
+    let result = true;
+    
+    if(tables.length > 8){
+      alert("You can not create more than 8 tables");
+      result = false;
+    }
+    if(name===null || name === '' || name.length > 10){
+      alert("Name either null or it has more then 10 letters");
+      result = false;
+    }
+    return result;
+  }
+
+  const createTable = async() =>{
+    if(validate()){
+      fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/table", {
+        method:"POST",
+        headers:{"Content-Type":"application/json", "Authorization": `Bearer ${token}`},
+        body:JSON.stringify({
+          "name":name,
+        })
+       }).then((res)=>{
+         return res.json();
+       }).then((resp=>{
+        alert(resp.message +" you can see it after refreshing the page");
+        handleClose();
+        navigate("/owner/company");
+       })).catch((err)=>{
+        navigate("/login");
+       });
+    }
+  }
 
   return (
     <>
@@ -24,13 +82,13 @@ function MyModal() {
           <Modal.Title>New table</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            <input className='form-control' placeholder='Table name' type="text" />
+            <input onChange={(e)=>{setName(e.target.value)}} className='form-control' placeholder='Table name' type="text" />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleClose}>
+          <Button variant="primary" onClick={createTable}>
             Create
           </Button>
         </Modal.Footer>

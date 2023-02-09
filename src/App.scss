@@ -1,3 +1,8 @@
+$primary: #407BFF;
+$success: #7FFF00;
+$info: #0dbbf0;
+$danger: #d83c36;
+@import "../node_modules/bootstrap/scss/bootstrap";
 @media only screen and (min-width: 820px) {
   .App{
     header{

@@ -2,29 +2,83 @@ import React, { useState } from "react";
 import './Tips.scss'
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import imageSource from '../../Public/Home/light.jpg'
 import { Container, Table } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import PenaltyVsTipsRow from "./PenaltyVsTipsRow";
 
 
 
 function Profile(){
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-    const firstname = "Karimberdi";
-    let dayCounter = 1;
-    const data  = [
-        {
-            id:1,
-            tips:"8.00-18.00",
-            tipsReason: 10,
-            penalty:0,
-            penaltyReason:"lormmm"
-        },
-        
-    ];
-    const [active, setActive] = useState(3);
-    let months = ["January", "February", "March", "April"];
+   
+  let month = new Date().getMonth()+1;
+  let months = ["January", "February", "March", "April","May","June","Jule","August","September","October","November","December"];
+  let activeMonths = [];
+  const [active, setActive] = useState(localStorage.getItem("month")===null?months[month-1]:localStorage.getItem("month"));
+
+  
+  const setActiveMonthsToLocal = (monthName, monthId) =>{
+  setActive(monthName);
+  localStorage.setItem("month", monthName);
+  localStorage.setItem("monthId", monthId);
+  console.log(monthId);
+  }
+
+  const setActiveMonths = () =>{
+  for (let i = 0; i < 4; i++) {
+   if(month === 0){
+    month = 12;
+   }
+   activeMonths.push(--month);
+  }
+  }
+  setActiveMonths();
+
+  let navigate = useNavigate();
+  const [name, setName] = useState(null);
+  const [imgSource, setImgSource] = useState(null);
+  const [initial, setInitial] = useState(null);
+  const [email, setEmail] = useState(localStorage.getItem("email"));
+  const [joinedCompany, setJoinedCompany] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [eMonthlyTableToken, setEMonthlyTableToken] = useState(null);
+  const [started, setStarted] = useState(true);
+  const validition = async() =>{
+    if(started){
+      setStarted(false);
+      fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth",{
+        method:"GET",
+        headers: {"Authorization": `Bearer ${token}`}
+      }).then((res)=>{
+        return res.json();
+      }).then((resp)=>{
+        setImgSource(resp.avatar!==null?null:resp.avatar);
+          setJoinedCompany(resp.joinedCompanyId==null?"Company name":resp.joinedCompanyId.name);
+          setName(resp.firstname);
+        setInitial(resp.initialLetter);
+      }).catch((e)=>{
+        navigate("/login")
+      });
+
+      fetch(`http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/monthly/getByEmailAndMonth?email=${email}&month=${active}`,{
+        method:"GET",
+        headers: {"Authorization": `Bearer ${token}`}
+      }).then((res)=>{
+        return res.json();
+      }).then((resp)=>{
+        localStorage.setItem("totaSalary", resp.totalSalary);
+        if(resp.id!=null) setEMonthlyTableToken(resp.id);
+        localStorage.setItem("eMonthlyToken", resp.id);
+      }).catch((e)=>{
+        navigate("/login")
+        alert(e.message);
+      });
+    }
+  }
+  validition();
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  
   return ( 
     <>
       <header className="coontainer-fluid bg-header d-flex justify-content-between">
@@ -35,9 +89,11 @@ function Profile(){
         </Button>
         <div className="d-flex gap-3">
           <p className="firstname">
-            {firstname}
+            {name}
           </p>
-          <img className="avatar" src={imageSource} alt="avatar" />
+          {
+            imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+          }
          </div>
       </header>
       <Container className="d-flex flex-column">
@@ -48,42 +104,32 @@ function Profile(){
               <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V1Zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3V1Z"/>
             </svg>
           </div>
-          <p>Socopol</p>
+          <p>{joinedCompany}</p>
         </div>
         <Table className="table mt-5" striped bordered hover size="sm">
           <thead>
             <tr>
-              <th>Day</th>
-              <th>Tips</th>
-              <th>Reason</th>
-              <th>Penalties</th>
-              <th>Reason</th>
+              <th className="fw-bolder">Day</th>
+              <th className="text-center">Tip</th>
+              <th className="text-center">Reason</th>
+              <th className="text-center">Penalty</th>
+              <th className="text-center">Reason</th>
             </tr>
           </thead>
-          <tbody>
-            {
-                data.map(day =>{
-                    return  <tr>
-                    <td>{dayCounter++}</td>
-                    <td>{day.tips}</td>
-                    <td>{day.tipsReason}</td>
-                    <td>{day.penalty}</td>
-                    <td>{day.penaltyReason}</td>
-                  </tr>
-                })
-            }
-          </tbody>
+          {
+            eMonthlyTableToken==null?null:<PenaltyVsTipsRow tableToken={eMonthlyTableToken} />
+          }
         </Table>
       </Container>
-      <footer className="d-flex flex-column gap-5">
-        <div className="months d-flex gap-2 justify-content-center">
-          {
-            months.map((month,i) =>{
-              return <Button variant={active === i ? `primary`:`outline-primary`}>{month}</Button>
-            })
-          }
-        </div>
-      </footer>
+        <Container className="d-flex flex-column gap-5 my-4">
+        <div className="months d-flex flex-row-reverse gap-2 justify-content-center">
+            {
+              activeMonths.map((monthId) =>{
+                return <Button href='/tips' onClick={()=>setActiveMonthsToLocal(months[monthId], monthId)} variant={months[monthId]===active?`warning`:`outline-warning`}>{months[monthId]}</Button>
+              })
+            }
+        </div>       
+      </Container>
       <Offcanvas show={show} onHide={handleClose} backdrop="static">
         <Offcanvas.Header closeButton>
           <Offcanvas.Title className="logo text-info fs-3 m-auto pt-2">Data<span className="bg-info logo rounded-4 text-light p-2">Hub</span></Offcanvas.Title>

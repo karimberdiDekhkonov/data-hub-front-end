@@ -3,79 +3,70 @@ import './Schedule.scss'
 import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import imageSource from '../../Public/Home/light.jpg'
+import { useNavigate } from 'react-router-dom';
+import ScheduleBody from './ShcheduleBody';
 
 
 
 function Schedule(){
+  let navigate = useNavigate();
+  
+    const [name, setName] = useState(null);
+    const [imgSource, setImgSource] = useState(null);
+    const [initial, setInitial] = useState(null);
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const data = {
-        firstname:"Karimberdi",
-        email:"karimberdidekhkono0921@gmail.com",
-        password:"*********",
-        imgSource:"Karimberdi",
+    const [response,  setResponse] = useState();
+    const [started,  setStarted] = useState(true);
+    const [bigData, setBigData] = useState(
+      {
+        "monday":"Day off",
+        "tuesday":"Day off",
+        "wednesday":"Day off",
+        "thursday":"Day off",
+        "friday":"Day off",
+        "saturday":"Day off",
+        "sunday":"Day off",
+        "dayOff":"Day off",
+      }
+    );
+
+  const [token, setToken] = useState(localStorage.getItem("token"));
+
+    const validition = async() =>{
+      if(started){
+        setStarted(false);
+        fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth",{
+          method:"GET",
+          headers: {"Authorization": `Bearer ${token}`}
+        }).then((res)=>{
+          return res.json();
+        }).then((resp)=>{
+          setImgSource(resp.avatar!==null?null:resp.avatar);
+          setName(resp.firstname);
+          setInitial(resp.initialLetter);
+        }).catch((e)=>{
+          navigate("/login")
+        });
+
+        setStarted(false);
+        fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/schedule",{
+          method:"GET",
+          headers: {"Authorization": `Bearer ${token}`}
+        }).then((res)=>{
+          return res.json();
+        }).then((resp)=>{
+          if(resp.monday!==null){
+            setBigData(resp)
+          }
+
+        }).catch((e)=>{
+          console.log(e)
+        });
+      }
     }
-    const holidays = [
-        {
-            name: "New year",
-            date: "09.21.2023"
-        },
-        {
-            name: "New year",
-            date: "09.21.2023"
-        },
-        {
-            name: "New year",
-            date: "09.21.2023"
-        },
-        {
-            name: "New year",
-            date: "09.21.2023"
-        },
-        {
-            name: "New year",
-            date: "09.21.2023"
-        }
-    ]
-    const days = [
-        {
-            day: "Monday",
-            start: "08.00",
-            end: "18.30"
-        },
-        {
-            day: "Tuesday",
-            start: "08.00",
-            end: "18.30"
-        },
-        {
-            day: "Wednesday",
-            start: "08.00",
-            end: "18.30"
-        },
-        {
-            day: "Thursday",
-            start: "08.00",
-            end: "18.30"
-        },
-        {
-            day: "Friday",
-            start: "08.00",
-            end: "18.30"
-        },
-        {
-            day: "Saturday",
-            start: "08.00",
-            end: "18.30"
-        },
-        {
-            day: "Sunday",
-            start: "Day off",
-            end: "Day off"
-        }
-    ]
+    validition();
   return ( 
     <>
       <header className="coontainer-fluid bg-header d-flex justify-content-between">
@@ -86,9 +77,11 @@ function Schedule(){
         </Button>
         <div className="d-flex gap-3">
           <p className="firstname">
-            {data.firstname}
+            {name}
           </p>
-          <img className="avatar" src={imageSource} alt="avatar" />
+          {
+            imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+          }
          </div>
       </header>
       <main className='container d-flex flex-column gap-5'>
@@ -100,39 +93,10 @@ function Schedule(){
                 <th>End</th>
             </tr>
           </thead>
-          <tbody>
-            {
-                days.map(day =>{
-                    return  <tr>
-                    <td className='fw-bolder'>{day.day}</td>    
-                    <td>{day.start}</td>
-                    <td>{day.end}</td>
-                  </tr>
-                })
-            }
-          </tbody>
+          {
+            bigData===null?<div className='mt-2 fs-5'>You do not join to any company</div>:<ScheduleBody bigData={bigData}/>
+          }
         </Table>
-        <Table className="table mt-5" striped bordered hover size="sm">
-          <thead>
-            <tr>
-                <th>Holiday name</th>
-                <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-                holidays.map(holiday =>{
-                    return  <tr>
-                    <td >{holiday.name}</td>    
-                    <td>{holiday.date}</td>
-                  </tr>
-                })
-            }
-          </tbody>
-        </Table>
-        <div>
-            <Button variant='info'>Download</Button>
-        </div>
       </main>
       <Offcanvas show={show} onHide={handleClose} backdrop="static">
         <Offcanvas.Header closeButton>

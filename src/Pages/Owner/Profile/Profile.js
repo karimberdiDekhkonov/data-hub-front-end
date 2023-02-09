@@ -2,19 +2,56 @@ import React, { useState } from "react";
 import './Profile.scss'
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import imageSource from '../../Public/Home/light.jpg'
 import { Container, Table } from "react-bootstrap";
-import MyModal from '../../../components/MyModal'
+import TablesContainer from './TablesContainer';
+import { useNavigate } from "react-router-dom";
 
 
 
 function Profile(){
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-    const firstname = "Karimberdi";
-    const [active, setActive] = useState(3);
-    let tables = ["MamaKebab"];
+  let navigate = useNavigate();
+  const [email, setEmail] = useState(null);
+  const [company, setCompany] = useState(null);
+  const [name, setName] = useState(null);
+  const [imgSource, setImgSource] = useState(null);
+  const [initial, setInitial] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const [started, setStarted] = useState(true);
+  const validition = async() =>{
+    if (started) {
+      setStarted(false);
+      fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth",{
+        method:"GET",
+        headers: {"Authorization": `Bearer ${token}`}
+      }).then((res)=>{
+        return res.json();
+      }).then((resp)=>{
+        setImgSource(resp.avatar!==null?null:resp.avatar);
+        setName(resp.firstname);
+        setEmail(resp.email);
+        setInitial(resp.initialLetter);
+      }).catch((e)=>{
+        navigate("/login")
+      });
+      
+      fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/company",{
+        method:"GET",
+        headers: {"Authorization": `Bearer ${token}`}
+      }).then((res)=>{
+        return res.json();
+      }).then((resp)=>{
+        setCompany(resp.message);
+      }).catch((e)=>{
+        navigate("/login")
+      });
+    }
+  }
+
+  validition();
+  const [active, setActive] = useState(3);
   return ( 
     <>
       <header className="container-fluid bg-header d-flex justify-content-between">
@@ -25,37 +62,25 @@ function Profile(){
         </Button>
         <div className="d-flex gap-3">
           <p className="firstname">
-            {firstname}
+            {name}
           </p>
-          <img className="avatar" src={imageSource} alt="avatar" />
+          {
+            imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+          }
          </div>
       </header>
       <Container className="d-flex flex-column">
-        <div className="com-name mt-3 text-info">
+        <div className="com-name mt-3 text-success">
           <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-building" viewBox="0 0 16 16">
               <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1ZM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Z"/>
               <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V1Zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3V1Z"/>
             </svg>
           </div>
-          <p className="tName">Company name</p>
+          <p className="tName">{company===null?`I'm your company name`:company}</p>
         </div>
         <div>
-          <div class="my-row">
-            {
-              tables.map(table=>{
-                return <Button href={`/`+firstname+`/`+table} variant="outline-secondary" class="my-col border py-3 rounded-2">
-                <div className="m-auto pt-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="currentColor" class="bi bi-table" viewBox="0 0 16 16">
-                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
-                  </svg>
-                </div>
-                <p className="m-auto">{table}</p>
-              </Button>
-              })
-            }
-            <MyModal/>
-          </div>
+          <TablesContainer/>
         </div>   
       </Container>
         <Offcanvas show={show} onHide={handleClose} backdrop="static">

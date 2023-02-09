@@ -2,20 +2,47 @@ import './Account.scss'
 import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import imageSource from '../../Public/Home/light.jpg'
+import ChangeName from './ChangeName'
+import UploadAvatar from './UploadAvatar'
+import ChangePassword from './ChangePassword'
+import { useNavigate } from 'react-router-dom';
+import SmallModal from '../../Owner/Account/SmallModal'
 
 
 
 function Account(){
+  let navigate = useNavigate();
+    const [email, setEmail] = useState(".");
+    const [password, setPassword] = useState(null);
+    const [name, setName] = useState(".");
+    const [joinedCompany, setJoinedCompany] = useState(null);
+    const [imgSource, setImgSource] = useState(null);
+    const [initial, setInitial] = useState(null);
+    const [salary, setSalary] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem("token"));
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const data = {
-        firstname:"Karimberdi",
-        email:"karimberdidekhkono0921@gmail.com",
-        password:"*********",
-        imgSource:"Karimberdi",
+    const validition = async() =>{
+      fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth",{
+        method:"GET",
+        headers: {"Authorization": `Bearer ${token}`}
+      }).then((res)=>{
+        return res.json();
+      }).then((resp)=>{
+        setImgSource(resp.avatar!==null?null:resp.avatar);
+        setJoinedCompany(resp.joinedCompanyId==null?null:resp.joinedCompanyId.name);
+        setName(resp.firstname);
+        setEmail(resp.email);
+        setInitial(resp.initialLetter);
+        setSalary(resp.salary);
+        localStorage.setItem("salary", resp.salary)
+      }).catch((e)=>{
+        navigate("/login")
+        alert(e.message);
+      })
     }
+    validition();
   return ( 
     <>
       <header className="coontainer-fluid bg-header d-flex justify-content-between">
@@ -26,50 +53,60 @@ function Account(){
         </Button>
         <div className="d-flex gap-3">
           <p className="firstname">
-            {data.firstname}
+            {name}
           </p>
-          <img className="avatar" src={imageSource} alt="avatar" />
+          {
+            imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+          }
          </div>
       </header>
       <main className='container d-flex flex-column gap-5'>
         <div className="img-container m-auto">
             <div className="img-box">
-                <img className='rounded-circle' src={imageSource} alt="avatar" />
+            {
+            imgSource===null?<div className="avatar-text-bigger">{initial}</div>:<img className="rounded-circle" src={imgSource} alt="" />
+          }
             </div>
             <div className='edit-img d-flex flex-row-reverse'>
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-              </svg>
+              <UploadAvatar/>
             </div>
         </div>
         <div className='name-container d-flex gap-3'>
             <p>Firstname :</p>
-            <p>{data.firstname}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
+            <p>{name}</p>
+            <ChangeName/>  
         </div>
         <div className='name-container d-flex gap-3'>
             <p>Email :</p>
-            <p>{data.email}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
+            <p>{email}</p>
         </div>
         <div className='name-container d-flex gap-3'>
             <p>Password :</p>
-            <p>{data.password}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
+            <p>*******</p>
+            <ChangePassword/>
+        </div>
+        <div className='name-container d-flex gap-3'>
+          <p>Joined company :</p>
+            {
+              joinedCompany===null?<p>You don't have company yet</p>:<p>{joinedCompany}</p>
+            }  
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-trash3 text-warning" viewBox="0 0 16 16">
+                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+              </svg>
+        </div>
+        <div className='name-container d-flex gap-3'>
+          <p>Hourly salary :</p>
+            {
+              joinedCompany===null?<p>You don't have company yet</p>:<p>{salary}</p>
+            }  
         </div>
         <div className='d-flex gap-4 mb-4'>
-        <Button href='/' variant='info'>
+        <Button onClick={()=>localStorage.clear()} href='/' variant='info'>
             Log out
         </Button>
-        <Button variant='danger'>
-            Delete Account
-        </Button>
+        <div>
+          <SmallModal/>
+        </div>
         </div>
       </main>
       <Offcanvas show={show} onHide={handleClose} backdrop="static">

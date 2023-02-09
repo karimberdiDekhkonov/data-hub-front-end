@@ -2,7 +2,12 @@
     width: 200px;
     height: 200px;
     .rounded-circle{
-        border: black solid 1px;
+        border: greenyellow solid 2px;
+    }
+}
+@media screen and (min-width: 820px) {
+    .img-box{
+        margin-top: 32px;
     }
 }
 .edit-img{
@@ -10,4 +15,8 @@
 }
 .name-container{
     border-bottom: solid black 1px;
+}
+
+.p-minus{
+    padding-bottom: 32px;
 }

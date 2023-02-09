@@ -3,7 +3,7 @@ import './Home.scss'
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import schedule from './light.jpg'
+import schedule from './logo.jpg'
 import Footer from '../../../components/Footer'
 import { Button } from "react-bootstrap";
 
@@ -26,13 +26,13 @@ function Home(){
       </Navbar>
       <main className="home-main p-3">
         <section className="left-section pe-3">
-          <p className="fs-3 mt-4 high-letter">DataHub is opensource platform to manage all of your company data and your employee's schedule.</p>
-          <p className="fs-3 mt-4 fw-bolder text-danger ls mb-2">Fast, Relaiable and Worldwide</p> 
+          <p className="fs-4 mt-4 high-letter">DataHub is an opensource platform to manage all of your company data and your employee's schedule.</p>
+          <p className="fs-4 mt-4 fw-bolder text-danger ls mb-2">Fast, Relaiable and Worldwide</p> 
           <div className="d-flex flex-circle">
             <div className="bg-info circle"></div>
             <div className="d-flex justify-content-center gap-4 mt-3">
               <Button className="circle-btn btn-width" href="/login">Login</Button>
-              <Button className="circle-btn" variant="outline-primary" href="/about">Know more</Button>
+              <Button className="circle-btn" variant="outline-primary" href="/signup">Sign up</Button>
             </div>
           </div>
         </section>

@@ -2,206 +2,83 @@ import React, { useState } from "react";
 import './Profile.scss'
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import imageSource from '../../Public/Home/light.jpg'
 import { Container, Table } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import EmployeeTableRow from './EmployeeTableRow'
+import HoursInput from "./HoursInputPrivate";
 
 
 
 function Profile(){
+    let month = new Date().getMonth()+1;
+    let months = ["January", "February", "March", "April","May","June","Jule","August","September","October","November","December"];
+    let activeMonths = [];
+    const [active, setActive] = useState(localStorage.getItem("month")===null?months[month-1]:localStorage.getItem("month"));
+
+    
+  const setActiveMonthsToLocal = (monthName, monthId) =>{
+    setActive(monthName);
+    localStorage.setItem("month", monthName);
+    localStorage.setItem("monthId", monthId);
+    console.log(monthId);
+  }
+
+  const setActiveMonths = () =>{
+    for (let i = 0; i < 4; i++) {
+     if(month === 0){
+      month = 12;
+     }
+     activeMonths.push(--month);
+    }
+  }
+  setActiveMonths();
+  
+    
+    let navigate = useNavigate();
+    const [joinedCompany, setJoinedCompany] = useState(null);
+    const [name, setName] = useState(null);
+    const [imgSource, setImgSource] = useState(null);
+    const [initial, setInitial] = useState(null);
+    const [email, setEmail] = useState(localStorage.getItem("email"));
+    const [token, setToken] = useState(localStorage.getItem("token"));
+    const [eMonthlyTableToken, setEMonthlyTableToken] = useState(null);
+    const [started, setStarted] = useState(true);
+    const validition = async() =>{
+      if(started){
+        setStarted(false);
+        fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth",{
+          method:"GET",
+          headers: {"Authorization": `Bearer ${token}`}
+        }).then((res)=>{
+          return res.json();
+        }).then((resp)=>{
+          setImgSource(resp.avatar!==null?null:resp.avatar);
+          setName(resp.firstname);
+          setInitial(resp.initialLetter);
+          setJoinedCompany(resp.joinedCompanyId==null?"Company name":resp.joinedCompanyId.name);
+        }).catch((e)=>{
+          navigate("/login")
+        });
+  
+        fetch(`http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/monthly/getByEmailAndMonth?email=${email}&month=${active}`,{
+          method:"GET",
+          headers: {"Authorization": `Bearer ${token}`}
+        }).then((res)=>{
+          return res.json();
+        }).then((resp)=>{
+          if(resp.id!=null) setEMonthlyTableToken(resp.id);
+          localStorage.setItem("eMonthlyToken", resp.id);
+          localStorage.setItem("totalHours", resp.totalHours);
+        }).catch((e)=>{
+          navigate("/login")
+        });
+      }
+    }
+    validition();
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const firstname = "Karimberdi";
-    let dayCounter = 1;
-    const data  = [
-        {
-            id:1,
-            workingHours:"8.00-18.00",
-            duration: 10,
-            tips:0,
-            penalty:0,
-            reason:"-"
-        },
-        {
-            id:1,
-            workingHours:"8.00-18.00",
-            duration: 10,
-            tips:0,
-            penalty:0,
-            reason:"-"
-        },
-        {
-          id:1,
-          workingHours:"8.00-18.00",
-          duration: 10,
-          tips:0,
-          penalty:0,
-          reason:"-"
-      },
-      {
-          id:1,
-          workingHours:"8.00-18.00",
-          duration: 10,
-          tips:0,
-          penalty:0,
-          reason:"-"
-      },
-      {
-        id:1,
-        workingHours:"8.00-18.00",
-        duration: 10,
-        tips:0,
-        penalty:0,
-        reason:"-"
-    },
-    {
-        id:1,
-        workingHours:"8.00-18.00",
-        duration: 10,
-        tips:0,
-        penalty:0,
-        reason:"-"
-    },
-    {
-      id:1,
-      workingHours:"8.00-18.00",
-      duration: 10,
-      tips:0,
-      penalty:0,
-      reason:"-"
-  },
-  {
-      id:1,
-      workingHours:"8.00-18.00",
-      duration: 10,
-      tips:0,
-      penalty:0,
-      reason:"-"
-  },
-  {
-    id:1,
-    workingHours:"8.00-18.00",
-    duration: 10,
-    tips:0,
-    penalty:0,
-    reason:"-"
-},
-{
-    id:1,
-    workingHours:"8.00-18.00",
-    duration: 10,
-    tips:0,
-    penalty:0,
-    reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-{
-  id:1,
-  workingHours:"8.00-18.00",
-  duration: 10,
-  tips:0,
-  penalty:0,
-  reason:"-"
-},
-        {
-            id:1,
-            workingHours:"8.00-18.00",
-            duration: 10,
-            tips:0,
-            penalty:0,
-            reason:"-"
-        }
-        
-    ];
-    const [active, setActive] = useState(3);
-    let months = ["January", "February", "March", "April"];
+    
   return ( 
     <>
       <header className="coontainer-fluid bg-header d-flex justify-content-between">
@@ -212,9 +89,11 @@ function Profile(){
         </Button>
         <div className="d-flex gap-3">
           <p className="firstname">
-            {firstname}
+            {name}
           </p>
-          <img className="avatar" src={imageSource} alt="avatar" />
+          {
+            imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+          }
          </div>
       </header>
       <Container className="d-flex flex-column">
@@ -225,7 +104,7 @@ function Profile(){
               <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V1Zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3V1Z"/>
             </svg>
           </div>
-          <p>Socopol</p>
+          <p>{joinedCompany}</p>
         </div>
         <Table className="table mt-5" striped bordered hover size="sm">
           <thead>
@@ -236,32 +115,22 @@ function Profile(){
               <th className="autofill">Aotofill</th>
             </tr>
           </thead>
-          <tbody>
-            {
-                data.map(day =>{
-                    return  <tr>
-                    <td className="autofill fw-bolder">{dayCounter++}</td>    
-                    <td className="text-center">{day.workingHours}</td>
-                    <td className="text-center">{day.duration}</td>
-                    <td className="autofill">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
-                        <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
-                      </svg>
-                    </td>
-                  </tr>
-                })
-            }
-          </tbody>
+          {
+            eMonthlyTableToken==null?null:<EmployeeTableRow tableToken={eMonthlyTableToken} />
+          }
         </Table>
       </Container>
-      <footer className="d-flex flex-column gap-5 my-4">
-        <div className="months d-flex gap-2 justify-content-center">
-          {
-            months.map((month,i) =>{
-              return <Button onClick={()=>setActive(i)} variant={active === i ? `primary`:`outline-primary`}>{month}</Button>
-            })
-          }
+      <Container className="d-flex flex-column gap-5 my-4">
+        <div className="months d-flex flex-row-reverse gap-2 justify-content-center">
+            {
+              activeMonths.map((monthId) =>{
+                return <Button href='/profile' onClick={()=>setActiveMonthsToLocal(months[monthId], monthId)} variant={months[monthId]===active?`warning`:`outline-warning`}>{months[monthId]}</Button>
+              })
+            }
         </div>       
+      </Container>
+      <footer className="prof-footer d-flex bg-smoke">
+        <HoursInput dayType="Day:" />
       </footer>
       <Offcanvas show={show} onHide={handleClose} backdrop="static">
         <Offcanvas.Header closeButton>

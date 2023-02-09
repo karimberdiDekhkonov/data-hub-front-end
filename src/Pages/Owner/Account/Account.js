@@ -2,23 +2,56 @@ import './Account.scss'
 import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import imageSource from '../../Public/Home/light.jpg'
+import { useNavigate } from 'react-router-dom';
+import SmallModal from './SmallModal';
+import UploadAttachment from './UploadAvatar';
+import ChangePassword from './ChangePassword';
+import ChangeName from './ChangeName';
+import CreateCompany from './CreateCompany';
 
 
 
 function Account(){
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-    const data = {
-        firstname:"Karimberdi",
-        lastname:"Dekhkonov",
-        email:"karimberdidekhkonsdsdsdo0921@gmail.com",
-        password:"*********",
-        imgSource:"Karimberdi",
-        phoneNumber:"+4832155",
-        companyName:"Unknown"
-    }
+  let navigate = useNavigate();
+  const [email, setEmail] = useState(null);
+  const [company, setCompany] = useState(null);
+  const [name, setName] = useState(null);
+  const [imgSource, setImgSource] = useState(null);
+  const [initial, setInitial] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const validition = async() =>{
+    fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth",{
+      method:"GET",
+      headers: {"Authorization": `Bearer ${token}`}
+    }).then((res)=>{
+      return res.json();
+    }).then((resp)=>{
+      setImgSource(resp.avatar!==null?null:resp.avatar);
+      setName(resp.firstname);
+      setEmail(resp.email);
+      setInitial(resp.initialLetter);
+    }).catch((e)=>{
+      navigate("/login")
+    })
+  }
+  const getCompany = async() =>{
+    fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/company",{
+      method:"GET",
+      headers: {"Authorization": `Bearer ${token}`}
+    }).then((res)=>{
+      return res.json();
+    }).then((resp)=>{
+      setCompany(resp.message);
+    }).catch((e)=>{
+      navigate("/login")
+    })
+  }
+  validition();
+  getCompany(); 
+  
   return ( 
     <>
       <header className="coontainer-fluid bg-header d-flex justify-content-between">
@@ -29,71 +62,52 @@ function Account(){
         </Button>
         <div className="d-flex gap-3">
           <p className="firstname">
-            {data.firstname}
+            {name}
           </p>
-          <img className="avatar" src={imageSource} alt="avatar" />
+          {
+            imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+          }
          </div>
       </header>
       <main className='container d-flex flex-column gap-5'>
         <div className="img-container m-auto">
             <div className="img-box">
-                <img className='rounded-circle' src={imageSource} alt="avatar" />
+            {
+              imgSource===null?<div className="avatar-text-bigger">{initial}</div>:<img className="rounded-circle" src={imgSource} alt="" />
+            }
             </div>
             <div className='edit-img d-flex flex-row-reverse'>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-              </svg>
+               <UploadAttachment/>
             </div>
         </div>
         <div className='name-container d-flex gap-3'>
             <p>Firstname :</p>
-            <p>{data.firstname}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
-        </div>
-        <div className='name-container d-flex gap-3'>
-            <p>Surname :</p>
-            <p>{data.lastname}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
-        </div>
-        <div className='name-container d-flex gap-3'>
-            <p>Phone number :</p>
-            <p>{data.phoneNumber}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
+            <p>{name}</p>
+            <ChangeName/>
         </div>
         <div className='name-container d-flex gap-3'>
             <p>Email :</p>
-            <p>{data.email}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
+            <p>{email}</p>
         </div>
         <div className='name-container d-flex gap-3'>
             <p>Password :</p>
-            <p>{data.password}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
+            <p>*******</p>
+            <ChangePassword/>
         </div>
         <div className='name-container d-flex gap-3'>
-            <p>Company name :</p>
-            <p>{data.companyName}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil fw-bold" viewBox="0 0 16 16">
-                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-            </svg>
+            <p>Your company :</p>
+            {
+              company===null?<p>I'm your company name</p>:<p>{company}</p>
+            }
+            <CreateCompany/>
         </div>
         <div className='d-flex gap-4 mb-4'>
-        <Button href='/' variant='info'>
+        <Button onClick={()=>localStorage.clear()} href='/' variant='info'>
             Log out
         </Button>
-        <Button variant='danger'>
-            Delete Account
-        </Button>
+        <div>
+            <SmallModal/>
+        </div>
         </div>
       </main>
       <Offcanvas show={show} onHide={handleClose} backdrop="static">

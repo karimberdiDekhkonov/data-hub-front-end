@@ -29,16 +29,7 @@ li{
     border-top-right-radius: 100%;
     margin-left: -200px;
     margin-bottom: -48px;
-    background-image: linear-gradient(to right, blue , white);
-}
-.login-circle{
-    width: 500px;
-    height: 500px;
-    border-top-right-radius: 100%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    background-image: linear-gradient(to right, blue , white);
+    background-image: linear-gradient(to right, #407BFF , white);
 }
 .h-full{
     height: calc(100vh - 120px);
@@ -92,4 +83,19 @@ header{
 }
 .scroll{
     overflow-y: scroll;
+}
+
+.pointer:hover{
+    cursor: pointer;
+}
+.border-none{
+    border: none;
+    background-color: inherit;
+}
+.bg-smoke{
+    background-color: white;
+}
+.flex-1{
+    flex: 1;
+    text-align: end;
 }

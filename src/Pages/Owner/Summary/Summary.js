@@ -2,40 +2,94 @@ import React, { useState } from "react";
 import './Summary.scss'
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import imageSource from '../../Public/Home/light.jpg'
+import { useNavigate } from "react-router-dom";
 import { Container, Table } from "react-bootstrap";
-import MyModal from '../../../components/MyModal'
+import MonthlyHours from "./MonthlyHours";
+import MonthlySalary from "./MonthlySalary";
 
 
 
 function Profile(){
+
+    let navigate = useNavigate();
+    let month = new Date().getMonth()+1;
+    let months = ["January", "February", "March", "April","May","June","Jule","August","September","October","November","December"];
+    let activeMonths = [];
+    const [active, setActive] = useState(localStorage.getItem("month")===null?months[month-1]:localStorage.getItem("month"));
+
+    if(localStorage.getItem("month")===null){
+      localStorage.setItem("month", active);
+      localStorage.setItem("monthId", month-1);
+    }
+    
+    const setActiveMonthsToLocal = (monthName, monthId) =>{
+      console.log(monthName)
+      console.log(monthId)
+      setActive(monthName);
+      localStorage.setItem("month", monthName);
+      localStorage.setItem("monthId", monthId);
+    }
+  
+    const setActiveMonths = () =>{
+    for (let i = 0; i < 4; i++) {
+     if(month === 0){
+      month = 12;
+     }
+     activeMonths.push(--month);
+    }
+    }
+    setActiveMonths();
+
+    const [email, setEmail] = useState(null);
+    const [name, setName] = useState(null);
+    const [imgSource, setImgSource] = useState(null);
+    const [initial, setInitial] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem("token"));
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const firstname = "Karimberdi";
-    const [active, setActive] = useState(3);
-    let tables = ["MamaKebab"];
-    const summary = [
-        {
-            name:"Jack",
-            monthlyHours:300,
-            monthlySalary:3000
-        },
-        {
-            name:"Jack",
-            monthlyHours:300,
-            monthlySalary:3000
-        },
-        {
-            name:"Jack",
-            monthlyHours:300,
-            monthlySalary:3000
-        }
-    ]
-    let months = ["January", "February", "March", "April"];
+    const [emails, setEmails] = useState([]);
+ 
+
+    const [started, setStarted] = useState(true);
+
+
+    const validition = async() =>{
+      if(started){
+         setStarted(false);
+          fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth",{
+            method:"GET",
+            headers: {"Authorization": `Bearer ${token}`}
+          }).then((res)=>{
+            return res.json();
+          }).then((resp)=>{
+            setImgSource(resp.avatar!==null?null:resp.avatar);
+            setName(resp.firstname);
+            setEmail(resp.email);
+            setInitial(resp.initialLetter);
+          }).catch((e)=>{
+            navigate("/login")
+          });
+           
+          fetch(`http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/auth/getEmployees`,{
+            method:"GET",
+            headers: {"Authorization": `Bearer ${token}`}
+          }).then((res)=>{
+            return res.json();
+          }).then((resp)=>{
+              resp.map((empl)=>{
+                setEmails((prev)=>[...prev, empl.email])
+              })
+              navigate("/owner/summary")
+            }).catch((e)=>{
+              console.log(e.message);
+            });
+    }
+  }
+    validition();
   return ( 
     <>
-      <header className="container-fluid bg-header d-flex justify-content-between">
+       <header className="container-fluid bg-header d-flex justify-content-between">
         <Button className="circle-btn mt-2" variant="outline-link" onClick={handleShow}>
           <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
@@ -43,52 +97,49 @@ function Profile(){
         </Button>
         <div className="d-flex gap-3">
           <p className="firstname">
-            {firstname}
+            {name}
           </p>
-          <img className="avatar" src={imageSource} alt="avatar" />
+          {
+            imgSource===null?<div className="avatar-text">{initial}</div>:<img className="avatar" src={imgSource} alt="" />
+          }
          </div>
       </header>
       <Container className="d-flex flex-column">
-        <div className="com-name mt-3 text-info">
-          <div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-building" viewBox="0 0 16 16">
-              <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1ZM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Z"/>
-              <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V1Zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3V1Z"/>
-            </svg>
-          </div>
-          <p className="tName">Unknown</p>
-        </div>
         <div>
           <Table className="my-3 table" striped bordered hover size="sm">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Working hours</th>
-                    <th>Salary</th>
+                    <th>Email</th>
+                    <th>Montlhy hours</th>
+                    <th>Monthly salary</th>
                 </tr>
             </thead>
             <tbody>
                 {
-                    summary.map(employee =>{
+                    emails.map(iterator =>{
                         return <tr>
-                            <td>{employee.name}</td>
-                            <td>{employee.monthlyHours} hours</td>
-                            <td>{employee.monthlySalary}</td>
+                            <td>{iterator}</td>
+                            <td>
+                              <MonthlyHours email={iterator}/>  
+                            </td>
+                            <td>
+                              <MonthlySalary email={iterator}/>  
+                            </td>
                         </tr>
                     })
                 }
             </tbody>
           </Table>
         </div>  
-        <footer className="d-flex flex-column gap-5 my-4">
-        <div className="months d-flex gap-2 justify-content-center">
-          {
-            months.map((month,i) =>{
-              return <Button onClick={()=>setActive(i)} variant={active === i ? `primary`:`outline-primary`}>{month}</Button>
-            })
-          }
+      </Container>
+      <Container className="d-flex flex-column gap-5 my-4">
+        <div className="months d-flex flex-row-reverse gap-2 justify-content-center">
+            {
+              activeMonths.map((monthId) =>{
+                return <Button href="/owner/summary" onClick={()=>setActiveMonthsToLocal(months[monthId], monthId)} variant={months[monthId]===active?`warning`:`outline-warning`}>{months[monthId]}</Button>
+              })
+            }
         </div>       
-      </footer> 
       </Container>
         <Offcanvas show={show} onHide={handleClose} backdrop="static">
         <Offcanvas.Header closeButton>
@@ -141,4 +192,4 @@ function Profile(){
   );
 }
 
-export default Profile
+export default Profile;

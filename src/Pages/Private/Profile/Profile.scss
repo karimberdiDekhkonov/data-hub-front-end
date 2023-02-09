@@ -2,7 +2,7 @@
     width: 50px;
     height: 50px;
     border-radius: 100%;
-    border: solid black 1px;
+    border: solid greenyellow 2px;
 }
 .in-hour{
     border-right: none;
@@ -48,4 +48,34 @@ ul{
 .prof-footer{
     position: sticky;
     bottom: 0;
+}
+.avatar-text{
+    background-color: greenyellow;
+    color: white;
+    font-size: x-large;
+    font-weight: bolder;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 50px;
+}
+.avatar-text-bigger{
+    background-color: greenyellow;
+    color: white;
+    font-size: 64px;
+    font-weight: bolder;
+    width: 200px;
+    height: 200px;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 200px;
+}
+.day-displayer{
+    width: 50px;
+    height: 30px;
+    text-align: center;
+}
+.cursor{
+    cursor: pointer;
 }

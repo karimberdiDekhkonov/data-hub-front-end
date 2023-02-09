@@ -11,6 +11,7 @@ import OwnerProfile from './Pages/Owner/Profile/Profile';
 import OwnerAcount from './Pages/Owner/Account/Account'
 import CreatedTable from './Pages/Owner/CreatedTable/Table'
 import Summary from './Pages/Owner/Summary/Summary'
+import Verify from './Pages/Public/VerifyingCode/Verify';
 
 function App() {  
   // let navigate = useNavigate() 
@@ -22,6 +23,7 @@ function App() {
           <Route path='/' element={<Home/>}/>
           <Route path='/login'  element={<Login/>}/>
           <Route path='/signup'  element={<SignUp/>}/>
+          <Route path='/verify'  element={<Verify/>}/>
           <Route path='/account'  element={<Account/>}/>
           <Route path='/myschedule'  element={<Schedule/>}/>
           <Route path='/tips'  element={<Tips/>}/>
@@ -29,7 +31,7 @@ function App() {
           <Route path='/owner/company'  element={<OwnerProfile/>}/>
           <Route path='/owner/account'  element={<OwnerAcount/>}/>
           <Route path='/owner/summary'  element={<Summary/>}/>
-          <Route path='/karimberdi/MamaKebab'  element={<CreatedTable/>}/>
+          <Route path='/owner/tableArea'  element={<CreatedTable/>}/>
         </Routes>
       </Router>
     </div>

@@ -1,13 +1,36 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { useNavigate } from 'react-router-dom';
 
 function MyModal() {
+  let navigate = useNavigate();
   const [show, setShow] = useState(false);
-
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const joinLink = "datahub.com/asjahedhgs_join"
+  const tableName = useState(localStorage.getItem("table"));
+ 
+
+  const deleteTable = async() =>{
+    console.log(`${tableName[0]}`);
+  fetch("http://ec2-3-76-198-93.eu-central-1.compute.amazonaws.com:8080/api/table",{
+    method:"DELETE",
+    headers: {"Authorization": `Bearer ${token}`, "Content-Type":"application/json"},
+    body:JSON.stringify({
+      "name": `${tableName[0]}`
+    })
+  }).then((res)=>{
+    return res.json();
+  }).then((resp)=>{
+      alert(resp.message);
+      navigate("/owner/company");
+  }).catch((e)=>{
+    alert(e.message);
+    handleClose();
+  })
+}
+  
 
   return (
     <>
@@ -25,7 +48,7 @@ function MyModal() {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="danger" onClick={handleClose}>
+          <Button variant="danger" onClick={deleteTable}>
             Delete 
           </Button>
         </Modal.Footer>
